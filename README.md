@@ -1,4 +1,4 @@
-# 🚀 Project Descrption
+# 🚀 Project Description
 
 Add LangChain LLM game engine, Streamlit UI, and database support
 
