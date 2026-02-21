@@ -71,6 +71,21 @@ DEBUG=True
 DATABASE_URL=your_database_url
 SECRET_KEY=your_secret_key
 
+5 Create an API Key
+
+Go to: https://openrouter.ai
+
+Sign in or create an account
+
+Navigate to API Keys
+
+Generate a new key
+
+Add the following:
+
+OPENAI_API_KEY=your_openrouter_api_key_here
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
+
 ▶️ Running the Project
 
 uvicorn src.server:app --reload --port 8000

@@ -14,7 +14,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 # -------------------------
 # API Setup
 # -------------------------
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "your_openrouter_api_key_here"
 os.environ["OPENAI_BASE_URL"] = "https://openrouter.ai/api/v1"
 
 llm = ChatOpenAI(model="deepseek/deepseek-chat", temperature=0.7)
