@@ -1,0 +1,33 @@
+{
+  "window.zoomLevel": 0.6,
+  "editor.fontSize": 14,
+  "workbench.tree.indent": 14,
+
+  "editor.formatOnSave": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode", // for other languages like JS
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": "keyword.control.class",
+        "settings": {
+          "foreground": "#ec1198",
+          "fontStyle": "bold italic"
+        }
+      },
+      {
+        "scope": "entity.name.type.class",
+        "settings": {
+          "foreground": "#6aa8e5",
+          "fontStyle": "italic"
+        }
+      }
+    ]
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "DotJoshJohnson.xml"
+  }
+}

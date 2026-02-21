@@ -1,0 +1,51 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python Debugger: Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "args": ["--config=${workspaceFolder}/myconfig.conf", "--dev=all"],
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      },
+     
+    },
+
+    // {
+    //   "name": "Odoo 17: Debug",
+    //   "type": "debugpy",
+    //   "request": "launch",
+    //   "python": "${workspaceFolder}/venv/bin/python",
+    //   "program": "${workspaceFolder}/odoo-bin",
+    //   "console": "integratedTerminal",
+    //   "justMyCode": false,
+    //   "args": ["--config=${workspaceFolder}/myconfig.conf", "--dev=all"],
+    //   "env": {
+    //     "PYTHONUNBUFFERED": "1"
+    //   },
+    //   "cwd": "${workspaceFolder}"
+    // },
+    // {
+    //   "name": "Run Odoo (Simple)",
+    //   "type": "python",
+    //   "request": "launch",
+    //   "python": "${workspaceFolder}/venv/bin/python",
+    //   "program": "${workspaceFolder}/odoo-bin",
+    //   "args": ["-c", "myconfig.conf"],
+    //   "console": "integratedTerminal",
+    //   "env": {
+    //     "PYTHONPATH": "${workspaceFolder}"
+    //   }
+    // },
+    {
+      "type": "chrome",
+      "name": "https://marketplace.visualstudio.com",
+      "request": "launch",
+      "url": "https://marketplace.visualstudio.com"
+    }
+  ]
+}
