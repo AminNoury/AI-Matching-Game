@@ -66,3 +66,6 @@ uvloop==0.21.0
 watchfiles==1.1.0
 websockets==15.0.1
 zstandard==0.24.0
+tavily-python==0.8.5
+langchain-openai==1.1.6
+streamlit==1.52.2
