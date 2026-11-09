@@ -27,6 +27,7 @@ from openai import (
 # هم با `streamlit run src/app.py` کار می‌کند (import ساده)
 # هم با `uvicorn src.server:app` (import نسبی به عنوان package)
 try:
+    from .image_helper import get_background
     from .network_helper import build_openai_http_client, configure_network_env
     from .search_helper import (
         clear_recent_logs,
@@ -35,6 +36,7 @@ try:
         search_available,
     )
 except ImportError:
+    from image_helper import get_background
     from network_helper import build_openai_http_client, configure_network_env
     from search_helper import (
         clear_recent_logs,
@@ -287,7 +289,16 @@ def _validate_game_data(data: dict[str, Any]) -> dict[str, Any]:
             seen.add(key)
         cleaned.append({"left": left, "right": right})
 
-    return {"title": title.strip(), "pairs": cleaned}
+    # فیلدهای عکس اختیاری‌اند؛ نبودنشان بازی را خراب نمی‌کند
+    image_query = str(data.get("image_query") or "").strip()[:80]
+    image_prompt = str(data.get("image_prompt") or "").strip()[:300]
+
+    return {
+        "title": title.strip(),
+        "pairs": cleaned,
+        "image_query": image_query,
+        "image_prompt": image_prompt,
+    }
 
 
 def _generate_game(
@@ -318,6 +329,10 @@ Rules:
 - Creative title (7 to 12 words)
 - Prefer the same language the user used, unless the Language rule says otherwise
 - Short card texts (1 to 5 words when possible)
+- image_query: 2 to 4 ENGLISH words for a stock-photo search matching the game's theme
+  (a concrete scene, place or object; no people's names)
+- image_prompt: ONE ENGLISH sentence (max 30 words) describing a calm background
+  illustration for the theme; it must not ask for any text, letters, numbers or logos
 - Output ONLY valid JSON
 - No markdown, no explanations
 """
@@ -336,6 +351,8 @@ Search evidence (may be empty):
 Return strictly this JSON:
 {{
   "title": "Game title here",
+  "image_query": "short english photo search",
+  "image_prompt": "One english sentence describing a background illustration",
   "pairs": [
     {{ "left": "Item A1", "right": "Item B1" }},
     {{ "left": "Item A2", "right": "Item B2" }},
@@ -368,12 +385,14 @@ Return strictly this JSON:
 def generate_matching_game_data(
     user_prompt: str | None = None,
     lang: str = "auto",
+    image_mode: str | None = None,
 ) -> dict[str, Any]:
     """
     ساخت بازی:
     1) تصمیم‌گیری: آیا سرچ لازم است؟
     2) فقط در صورت نیاز/شک -> Parallel MCP (رایگان)
     3) تولید title + 4 جفت
+    4) عکس پس‌زمینه: سرچ استفاده شده -> عکس واقعی (Pexels)، وگرنه عکس AI
 
     lang: "auto" | "en" | "fa" — زبان عنوان و کارت‌های بازی.
 
@@ -446,8 +465,22 @@ def generate_matching_game_data(
 
     # فاز ۳: تولید بازی
     data = _generate_game(prompt, search_results, lang)
+
+    # فاز ۴: عکس پس‌زمینه (هیچ‌وقت نباید بازی را خراب کند)
+    used_search = bool(search_results)
+    data["background"] = None
+    try:
+        data["background"] = get_background(
+            data.get("image_query", ""),
+            data.get("image_prompt", ""),
+            used_search=used_search,
+            mode=image_mode,
+        )
+    except Exception as exc:
+        _search_logger.warning("background image failed: %s", exc)
+
     data["search_meta"] = {
-        "used": bool(search_results),
+        "used": used_search,
         "requested": bool(decision.get("need_search") or search_results),
         "queries": decision.get("queries") or [],
         "reason": decision.get("reason") or "",
@@ -457,9 +490,10 @@ def generate_matching_game_data(
         "logs": get_recent_logs(),
     }
     _search_logger.info(
-        "generate done used_search=%s title=%s",
-        bool(search_results),
+        "generate done used_search=%s title=%s background=%s",
+        used_search,
         data.get("title"),
+        (data["background"] or {}).get("source"),
     )
     return data
 
@@ -469,4 +503,7 @@ if __name__ == "__main__":
     game_data = generate_matching_game_data(
         "A fun matching game about Persian foods and their cities"
     )
+    # data_uri خیلی طولانی است؛ برای چاپ کوتاه می‌شود
+    if game_data.get("background"):
+        game_data["background"]["data_uri"] = game_data["background"]["data_uri"][:60] + "..."
     print(json.dumps(game_data, indent=2, ensure_ascii=False))

@@ -17,9 +17,17 @@ game_data = None
 cards = []
 
 
-def initialize_game(user_prompt: str, lang: str = "auto"):
+def initialize_game(
+    user_prompt: str,
+    lang: str = "auto",
+    image_mode: str | None = None,
+):
     global cards, game_data
-    game_data = generate_matching_game_data(user_prompt, lang=lang)
+    game_data = generate_matching_game_data(
+        user_prompt,
+        lang=lang,
+        image_mode=image_mode,
+    )
     cards = []
     for i, pair in enumerate(game_data["pairs"]):
         match_key = str(i)
@@ -53,15 +61,20 @@ class Click(BaseModel):
 class NewGame(BaseModel):
     prompt: str = Field(..., min_length=1)
     lang: str = "auto"  # auto | en | fa
+    image_mode: str | None = None  # auto | web | ai | off
 
 
 @app.post("/new-game")
 def new_game(body: NewGame):
     try:
-        initialize_game(body.prompt.strip(), body.lang)
+        initialize_game(body.prompt.strip(), body.lang, body.image_mode)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return {"title": game_data["title"], "cards": cards}
+    return {
+        "title": game_data["title"],
+        "background": game_data.get("background"),
+        "cards": cards,
+    }
 
 
 @app.get("/cards")
@@ -71,7 +84,11 @@ def get_cards():
             status_code=400,
             detail="No game yet. POST /new-game with a prompt first.",
         )
-    return {"title": game_data["title"], "cards": cards}
+    return {
+        "title": game_data["title"],
+        "background": game_data.get("background"),
+        "cards": cards,
+    }
 
 
 @app.post("/click")
