@@ -156,7 +156,7 @@ def click_card(card_id):
 
 def render_header():
     st.markdown(
-        "<h4 style='margin-bottom:0;'>Academic Supervisor: Dr. Shermin Mousavei</h4>",
+        "<h4 style='margin-bottom:0;'>Academic Supervisor: Dr. Mir Hosseini</h4>",
         unsafe_allow_html=True,
     )
     st.markdown(
